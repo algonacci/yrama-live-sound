@@ -15,40 +15,20 @@
         padding: 1rem 2rem;
         font-size: 1.5rem;
       }
+      .btn-active {
+        background-color: #0056b3 !important;
+        border-color: #0056b3 !important;
+      }
     </style>
   </head>
   <body
     class="d-flex flex-column align-items-center justify-content-center vh-100"
   >
     <div class="container">
-      <div class="row">
-        <div class="col-6 d-flex justify-content-center mb-2">
-          <button id="playAudio1" class="btn btn-secondary btn-large">
-            DAMN
-          </button>
-        </div>
-        <div class="col-6 d-flex justify-content-center mb-2">
-          <button id="playAudio2" class="btn btn-secondary btn-large">
-            Yeayyy
-          </button>
-        </div>
-        <div class="col-6 d-flex justify-content-center mb-2">
-          <button id="playAudio3" class="btn btn-secondary btn-large">
-            Rap Beat Sunda
-          </button>
-        </div>
-        <div class="col-6 d-flex justify-content-center mb-2">
-          <button id="playAudio4" class="btn btn-secondary btn-large">
-            Rap Beat Sunda 2
-          </button>
-        </div>
+      <div class="row" id="buttonContainer">
+        <!-- Buttons will be dynamically added here -->
       </div>
     </div>
-
-    <audio id="audio1" src="sounds/damn.mpeg"></audio>
-    <audio id="audio2" src="sounds/yeay.mpeg"></audio>
-    <audio id="audio3" src="sounds/rap_beat_sunda.mp3"></audio>
-    <audio id="audio4" src="sounds/rap_beat_sunda_2.mp3"></audio>
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -56,27 +36,38 @@
       crossorigin="anonymous"
     ></script>
     <script>
-      document
-        .getElementById("playAudio1")
-        .addEventListener("click", function () {
-          document.getElementById("audio1").play();
-        });
+      const sounds = [
+        { name: "DAMN", file: "sounds/damn.mpeg" },
+        { name: "Yeayyy", file: "sounds/yeay.mpeg" },
+        { name: "Rap Beat Sunda", file: "sounds/rap_beat_sunda.mp3" },
+        { name: "Rap Beat Sunda 2", file: "sounds/rap_beat_sunda_2.mp3" },
+      ];
 
-      document
-        .getElementById("playAudio2")
-        .addEventListener("click", function () {
-          document.getElementById("audio2").play();
+      const buttonContainer = document.getElementById("buttonContainer");
+
+      sounds.forEach((sound, index) => {
+        const col = document.createElement("div");
+        col.className = "col-6 d-flex justify-content-center mb-2";
+
+        const button = document.createElement("button");
+        button.id = `playAudio${index + 1}`;
+        button.className = "btn btn-secondary btn-large";
+        button.textContent = sound.name;
+
+        col.appendChild(button);
+        buttonContainer.appendChild(col);
+
+        const audio = new Audio(sound.file);
+
+        button.addEventListener("click", function () {
+          button.classList.add("btn-active");
+          audio.play();
+
+          audio.onended = function () {
+            button.classList.remove("btn-active");
+          };
         });
-      document
-        .getElementById("playAudio3")
-        .addEventListener("click", function () {
-          document.getElementById("audio3").play();
-        });
-      document
-        .getElementById("playAudio4")
-        .addEventListener("click", function () {
-          document.getElementById("audio4").play();
-        });
+      });
     </script>
   </body>
 </html>
