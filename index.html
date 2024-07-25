@@ -10,23 +10,72 @@
       integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
       crossorigin="anonymous"
     />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <style>
-      .btn-large {
-        padding: 1rem 2rem;
-        font-size: 1.5rem;
+      .btn-effect {
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        font-size: 0.8rem;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transition: all 0.3s ease;
       }
-      .btn-active {
-        background-color: #0056b3 !important;
-        border-color: #0056b3 !important;
+      .btn-effect:hover {
+        transform: scale(1.05);
+      }
+      .btn-effect i {
+        font-size: 1.5rem;
+        margin-bottom: 0.25rem;
+      }
+      .btn-track {
+        width: 100%;
+        padding: 0.75rem;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .btn-track i {
+        font-size: 1.5rem;
+        margin-right: 0.5rem;
+      }
+      .control-btn {
+        font-size: 1rem;
+        padding: 0.5rem;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      @media (min-width: 768px) {
+        .btn-effect {
+          font-size: 1rem;
+        }
+        .btn-effect i {
+          font-size: 2rem;
+        }
       }
     </style>
   </head>
   <body
-    class="d-flex flex-column align-items-center justify-content-center vh-100"
+    class="d-flex flex-column align-items-center justify-content-center min-vh-100 bg-light py-4"
   >
     <div class="container">
-      <div class="row" id="buttonContainer">
-        <!-- Buttons will be dynamically added here -->
+      <h1 class="text-center mb-4">Yrama Live Sound Board</h1>
+      <div class="row g-3" id="effectContainer">
+        <!-- Effect sounds will be dynamically added here -->
+      </div>
+      <div class="row g-4 mt-3" id="trackContainer">
+        <!-- Track sounds will be dynamically added here -->
       </div>
     </div>
 
@@ -37,37 +86,114 @@
     ></script>
     <script>
       const sounds = [
-        { name: "DAMN", file: "sounds/damn.mpeg" },
-        { name: "Yeayyy", file: "sounds/yeay.mpeg" },
-        { name: "Rap Beat Sunda", file: "sounds/rap_beat_sunda.mp3" },
-        { name: "Rap Beat Sunda 2", file: "sounds/rap_beat_sunda_2.mp3" },
+        {
+          name: "DAMN",
+          file: "sounds/damn.mpeg",
+          type: "effect",
+          icon: "fa-bolt",
+        },
+        {
+          name: "Yeayyy",
+          file: "sounds/yeay.mpeg",
+          type: "effect",
+          icon: "fa-star",
+        },
+        {
+          name: "Rap Beat Sunda",
+          file: "sounds/rap_beat_sunda.mp3",
+          type: "track",
+          icon: "fa-music",
+        },
+        {
+          name: "Rap Beat Sunda 2",
+          file: "sounds/rap_beat_sunda_2.mp3",
+          type: "track",
+          icon: "fa-headphones",
+        },
       ];
 
-      const buttonContainer = document.getElementById("buttonContainer");
+      const effectContainer = document.getElementById("effectContainer");
+      const trackContainer = document.getElementById("trackContainer");
 
       sounds.forEach((sound, index) => {
         const col = document.createElement("div");
-        col.className = "col-6 d-flex justify-content-center mb-2";
-
-        const button = document.createElement("button");
-        button.id = `playAudio${index + 1}`;
-        button.className = "btn btn-secondary btn-large";
-        button.textContent = sound.name;
-
-        col.appendChild(button);
-        buttonContainer.appendChild(col);
 
         const audio = new Audio(sound.file);
 
-        button.addEventListener("click", function () {
-          button.classList.add("btn-active");
-          audio.play();
+        if (sound.type === "effect") {
+          col.className = "col-6 col-md-3 mb-3";
+          const button = createButton(
+            sound.name,
+            `btn-effect btn-primary`,
+            () => {
+              audio.currentTime = 0;
+              audio.play();
+            },
+            `<i class="fas ${sound.icon}"></i>`
+          );
+          col.appendChild(button);
+          effectContainer.appendChild(col);
+        } else if (sound.type === "track") {
+          col.className = "col-12 col-sm-6";
+          const card = document.createElement("div");
+          card.className = "card h-100";
 
-          audio.onended = function () {
-            button.classList.remove("btn-active");
-          };
-        });
+          const cardBody = document.createElement("div");
+          cardBody.className = "card-body d-flex flex-column";
+
+          const trackButton = createButton(
+            sound.name,
+            "btn-track btn-light flex-grow-1",
+            null,
+            `<i class="fas ${sound.icon}"></i>`
+          );
+          cardBody.appendChild(trackButton);
+
+          const buttonGroup = document.createElement("div");
+          buttonGroup.className = "d-flex justify-content-between mt-2";
+
+          const playButton = createButton(
+            "",
+            "control-btn btn-success",
+            () => audio.play(),
+            '<i class="fas fa-play"></i>'
+          );
+          const pauseButton = createButton(
+            "",
+            "control-btn btn-warning",
+            () => audio.pause(),
+            '<i class="fas fa-pause"></i>'
+          );
+          const stopButton = createButton(
+            "",
+            "control-btn btn-danger",
+            () => {
+              audio.pause();
+              audio.currentTime = 0;
+            },
+            '<i class="fas fa-stop"></i>'
+          );
+
+          buttonGroup.appendChild(playButton);
+          buttonGroup.appendChild(pauseButton);
+          buttonGroup.appendChild(stopButton);
+
+          cardBody.appendChild(buttonGroup);
+          card.appendChild(cardBody);
+          col.appendChild(card);
+          trackContainer.appendChild(col);
+        }
       });
+
+      function createButton(text, className, onClick, icon) {
+        const button = document.createElement("button");
+        button.className = `btn ${className}`;
+        button.innerHTML = icon
+          ? `${icon}<span class="d-block mt-1">${text}</span>`
+          : text;
+        if (onClick) button.addEventListener("click", onClick);
+        return button;
+      }
     </script>
   </body>
 </html>
